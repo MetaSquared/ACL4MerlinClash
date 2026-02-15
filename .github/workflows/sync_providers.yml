@@ -1,0 +1,47 @@
+name: Sync Providers from ACL4SSR
+
+on:
+  schedule:
+    # 每 3 小时检查一次更新
+    - cron: '0 */3 * * *'
+  workflow_dispatch: # 允许手动触发同步
+
+jobs:
+  sync:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout Target Repository
+        uses: actions/checkout@v4
+        with:
+          token: ${{ secrets.SYNC_PAT }}
+          persist-credentials: true
+
+      - name: Clone Source Repository (Sparse Checkout)
+        run: |
+          git clone --depth 1 --filter=blob:none --sparse https://github.com/ACL4SSR/ACL4SSR.git source_repo
+          cd source_repo
+          git sparse-checkout set Clash/Providers
+          cd ..
+
+      - name: Sync Files
+        run: |
+          TARGET_DIR="./" 
+          mkdir -p $TARGET_DIR
+          
+          cp -R source_repo/Clash/Providers/* $TARGET_DIR
+          
+          # 清理临时克隆的仓库
+          rm -rf source_repo
+
+      - name: Commit and Push
+        run: |
+          git config --local user.email "github-actions[bot]@users.noreply.github.com"
+          git config --local user.name "github-actions[bot]"
+          
+          git add .
+          if git diff --quiet && git diff --staged --quiet; then
+            echo "No changes detected. Skipping commit."
+          else
+            git commit -m "chore: sync files from ACL4SSR/Clash/Providers ($(date +'%Y-%m-%d %H:%M'))"
+            git push
+          fi
