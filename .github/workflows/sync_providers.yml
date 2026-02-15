@@ -2,35 +2,47 @@ name: Sync Providers from ACL4SSR
 
 on:
   schedule:
-    # 每 3 小时检查一次更新
     - cron: '0 */3 * * *'
-  workflow_dispatch: # 允许手动触发同步
+  workflow_dispatch:
 
 jobs:
   sync:
     runs-on: ubuntu-latest
+    permissions:
+      contents: write
+      
     steps:
       - name: Checkout Target Repository
         uses: actions/checkout@v4
         with:
           persist-credentials: true
 
-      - name: Clone Source Repository (Sparse Checkout)
+      - name: Clone Source Repository (Single Branch)
         run: |
-          git clone --depth 1 --filter=blob:none --sparse https://github.com/ACL4SSR/ACL4SSR.git source_repo
-          cd source_repo
-          git sparse-checkout set Clash/Providers
+          # 建立临时文件夹并进入
+          mkdir -p temp_source
+          cd temp_source
+          git init
+          git remote add origin https://github.com/ACL4SSR/ACL4SSR.git
+          # 开启稀疏检出
+          git config core.sparseCheckout true
+          # 设置要同步的具体路径
+          echo "Clash/Providers/" >> .git/info/sparse-checkout
+          # 仅拉取 master 分支
+          git pull --depth 1 origin master
           cd ..
 
       - name: Sync Files
         run: |
-          TARGET_DIR="./" 
-          mkdir -p $TARGET_DIR
+          # 确保源目录确实存在文件（调试用）
+          ls -R temp_source/Clash/Providers/
           
-          cp -R source_repo/Clash/Providers/* $TARGET_DIR
+          # 复制文件到当前仓库根目录
+          # 使用 -a 保留属性，. 确保隐藏文件也能处理
+          cp -rn temp_source/Clash/Providers/* ./
           
-          # 清理临时克隆的仓库
-          rm -rf source_repo
+          # 清理临时文件
+          rm -rf temp_source
 
       - name: Commit and Push
         run: |
@@ -42,5 +54,5 @@ jobs:
             echo "No changes detected. Skipping commit."
           else
             git commit -m "chore: sync files from ACL4SSR/Clash/Providers ($(date +'%Y-%m-%d %H:%M'))"
-            git push
+            git push origin main
           fi
