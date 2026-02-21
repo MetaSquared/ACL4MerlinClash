@@ -35,7 +35,7 @@ jobs:
       - name: Sync Files
         run: |
           # 定义你想存放的子文件夹名
-          TARGET_DIR="Providers"
+          TARGET_DIR="./"
           mkdir -p "$TARGET_DIR"
           
           cp -a temp_source/Clash/Providers/. "$TARGET_DIR/"
