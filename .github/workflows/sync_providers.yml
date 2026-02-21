@@ -34,13 +34,11 @@ jobs:
 
       - name: Sync Files
         run: |
-          # 确保目标目录存在
-          # 如果你想放在根目录就用 ./，如果想放在特定文件夹就改这里
-          TARGET_DIR="./"
+          # 定义你想存放的子文件夹名
+          TARGET_DIR="Providers"
+          mkdir -p "$TARGET_DIR"
           
-          # 使用 -R (递归) 和 -u (仅更新较新的文件) 
-          # 这样比 -n 更稳健，且能处理 Ruleset 文件夹
-          cp -Ru temp_source/Clash/Providers/* "$TARGET_DIR"
+          cp -a temp_source/Clash/Providers/. "$TARGET_DIR/"
           
           # 清理临时文件
           rm -rf temp_source
