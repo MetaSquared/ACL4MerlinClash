@@ -34,12 +34,13 @@ jobs:
 
       - name: Sync Files
         run: |
-          # 确保源目录确实存在文件（调试用）
-          ls -R temp_source/Clash/Providers/
+          # 确保目标目录存在
+          # 如果你想放在根目录就用 ./，如果想放在特定文件夹就改这里
+          TARGET_DIR="./"
           
-          # 复制文件到当前仓库根目录
-          # 使用 -a 保留属性，. 确保隐藏文件也能处理
-          cp -rn temp_source/Clash/Providers/* ./
+          # 使用 -R (递归) 和 -u (仅更新较新的文件) 
+          # 这样比 -n 更稳健，且能处理 Ruleset 文件夹
+          cp -Ru temp_source/Clash/Providers/* "$TARGET_DIR"
           
           # 清理临时文件
           rm -rf temp_source
