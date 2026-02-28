@@ -1,6 +1,7 @@
 payload:
 # 内容：AV
-# 数量：60条
+# 数量：61条
+- DOMAIN-SUFFIX,18comic.vip
 - DOMAIN-SUFFIX,10musume.com
 - DOMAIN-SUFFIX,1pondo.tv
 - DOMAIN-SUFFIX,airav.io
