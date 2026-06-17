@@ -2,3 +2,4 @@ payload:
   - DOMAIN-SUFFIX,mtslash.xyz
   - DOMAIN-SUFFIX,huaweicloud.com
   - DOMAIN-SUFFIX,myhuaweicloud.com
+  - DOMAIN-SUFFIX,ghcr.io
